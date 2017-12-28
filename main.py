@@ -369,8 +369,8 @@ def load_list(listname='share_list'):
     globals()[listname] = list(set(globals()[listname]))
     end_time = datetime.now()
     timedelsta = (end_time - start_time).seconds
-    print('单线程导入，一共导入 %s 支股票，耗时 %s 秒。' % （len(globals()[listname]), timedelsta))
-    threading.Thread(target=insert_share_codes, args=(,)).start()
+    print('单线程导入，一共导入 %s 支股票，耗时 %s 秒。' % (len(globals()[listname]), timedelsta))
+    threading.Thread(target=insert_share_codes, args=()).start()
 
 # 多线程导入
 def load_list_t(listname='share_list'):
@@ -383,8 +383,8 @@ def load_list_t(listname='share_list'):
     globals()[listname] = list(set(globals()[listname]))
     end_time = datetime.now()
     timedelsta = (end_time - start_time).seconds
-    print('多线程导入，一共导入 %s 支股票，耗时 %s 秒。' % （len(globals()[listname]), timedelsta))
-    threading.Thread(target=insert_share_codes, args=(,)).start()
+    print('多线程导入，一共导入 %s 支股票，耗时 %s 秒。' % (len(globals()[listname]), timedelsta))
+    threading.Thread(target=insert_share_codes, args=()).start()
 
 # 导入上海A股列表share_list并去除20171201以后上市的股票
 def get_sha_list(listname='share_list', afterdate=20171201):
