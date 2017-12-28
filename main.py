@@ -21,6 +21,16 @@ proxies = None
 
 ########--Tools--########
 
+# Sqlite
+def delete_form(dbname, formname):
+    conn = sqlite3.connect('database/%s.db' % dbname)
+    c = conn.cursor()
+    c.execute("DROP TABLE IF EXISTS %s;" % formname)
+    conn.commit()
+    conn.close()
+    print("成功从数据库 %s 中清除表 %s " % (dbname, formname))
+
+
 def sscode(code):
     code = str(code)
     if code[0]+code[1] =='60':
@@ -50,6 +60,18 @@ def share_market(code):
             return('深市主板')
         else:
             return('中小板')
+
+def share_market_code(code):
+    code = str(code)
+    if code[0] =='6':
+        return('SHA')
+    elif code[0] =='3':
+        return('SZCY')
+    else:
+        if code[2] == '0':
+            return('SZA')
+        else:
+            return('SZZX')
 
 #######---get-data---#######
 
@@ -202,7 +224,53 @@ def plot_list(listname):
             pass
 
 
+#######--Create share_list Database--#######
+# 创建share_list数据库
+def create_share_list_db():
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS SHA
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZA
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZZX
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZCY
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    conn.commit()
+    conn.close()
+    print("成功创建share_list数据库 表SHA，SZA，SZZX，SZCY，等待数据写入。")
 
+# 插入股票代码到数据库share_list
+def insert_share_codes():
+    start_time = datetime.now()
+    delete_form('share_list.db', 'SHA')
+    delete_form('share_list.db', 'SZA')
+    delete_form('share_list.db', 'SZZX')
+    delete_form('share_list.db', 'SZCY')
+    create_share_list_db()
+    threads = []
+    for i in share_list:
+        a = threading.Thread(target=insert_code, args=(i,))
+        threads.append(a)
+        a.start()
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
+
+# 插入股票代码
+def insert_code(code):
+    name = share_name(code)
+    formname = share_market_code(code)
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO %s (CODE, NAME) VALUES (?, ?)" % formname,(code, name))
+    conn.commit()
+    conn.close()
 
 
 #################--load-pages--####################
@@ -286,16 +354,37 @@ def get_szcy_page(page_num):
 
 ##############==============================================############
 # 导入股票
+def get_list():
+    load_list()
 
-def get_list(listname='share_list'):
+
+# 单线程导入
+def load_list(listname='share_list'):
     globals()[listname] = []
+    start_time = datetime.now()
     get_sha_list()
     get_sza_list()
     get_szzx_list()
     get_szcy_list()
     globals()[listname] = list(set(globals()[listname]))
-    print('一共导入 %s 支股票。' % len(globals()[listname]))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('单线程导入，一共导入 %s 支股票，耗时 %s 秒。' % （len(globals()[listname]), timedelsta))
+    threading.Thread(target=insert_share_codes, args=(,)).start()
 
+# 多线程导入
+def load_list_t(listname='share_list'):
+    globals()[listname] = []
+    start_time = datetime.now()
+    get_sha_list()
+    get_sza_list_t()
+    get_szzx_list_t()
+    get_szcy_list_t()
+    globals()[listname] = list(set(globals()[listname]))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('多线程导入，一共导入 %s 支股票，耗时 %s 秒。' % （len(globals()[listname]), timedelsta))
+    threading.Thread(target=insert_share_codes, args=(,)).start()
 
 # 导入上海A股列表share_list并去除20171201以后上市的股票
 def get_sha_list(listname='share_list', afterdate=20171201):
@@ -306,6 +395,7 @@ def get_sha_list(listname='share_list', afterdate=20171201):
             globals()[listname] = []
     else:
         globals()[listname] = []
+    start_time = datetime.now()
     url = 'http://query.sse.com.cn/security/stock/getStockListData2.do?&stockType=1&pageHelp.beginPage=1&pageHelp.pageSize=2000'
     header = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0',
@@ -323,9 +413,13 @@ def get_sha_list(listname='share_list', afterdate=20171201):
         else: 
             globals()[listname].append(code)
             sha.append(code)
-    globals()[listname] = sha
-    print('从 沪A 成功导入%s支股票。' % len(sha))
+    globals()[listname] += sha
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 沪A 成功导入%s支股票，耗时%s秒。' % (len(sha), timedelsta))
 
+
+###########------单线程导入---------##########
 # 导入深圳A股列表share_list并去除20171201以后上市的股票
 def get_sza_list(listname='share_list', afterdate=20171201):
     global sza
@@ -341,17 +435,15 @@ def get_sza_list(listname='share_list', afterdate=20171201):
     index_html = s.get(index_url).content
     index_soup = BeautifulSoup(index_html, "html.parser")
     index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
-    threads = []
+    start_time = datetime.now()
     print('正在获取深A列表，一共%s页。' % (index+1))
     for i in range(index):
         i = i + 1
-        a = threading.Thread(target=get_sza_page, args=(i, afterdate,))
-        threads.append(a)
-        a.start()
-    for t in threads:
-        t.join()
+        get_sza_page(i, afterdate)
     globals()[listname] += sza
-    print('从 深A 成功导入%s %s支股票。' % (listname, len(sza)))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深A 成功导入%s %s支股票。本次扫描单线程，耗时%s秒。' % (listname, len(sza), timedelsta))
 
 # 导入深圳中小板share_list
 def get_szzx_list(listname='share_list'):
@@ -368,17 +460,15 @@ def get_szzx_list(listname='share_list'):
     index_html = s.get(index_url).content
     index_soup = BeautifulSoup(index_html, "html.parser")
     index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
-    threads = []
+    start_time = datetime.now()
     print('正在获取深圳中小板列表，一共%s页。' % (index+1))
     for i in range(index):
         i = i + 1
-        a = threading.Thread(target=get_szzx_page, args=(i,))
-        threads.append(a)
-        a.start()
-    for t in threads:
-        t.join()
+        get_szzx_page(i)
     globals()[listname] += szzx
-    print('从 深圳中小板 成功导入%s %s支股票。' % (listname, len(szzx)))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深圳中小板 成功导入%s %s支股票。本次扫描单线程，耗时%s秒。' % (listname, len(szzx), timedelsta))
 
 # 导入深圳创业板share_list
 def get_szcy_list(listname='share_list'):
@@ -395,7 +485,95 @@ def get_szcy_list(listname='share_list'):
     index_html = s.get(index_url).content
     index_soup = BeautifulSoup(index_html, "html.parser")
     index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
+    start_time = datetime.now()
+    print('正在获取深圳创业板列表，一共%s页。' % (index+1))
+    for i in range(index):
+        i = i + 1
+        get_szcy_page(i)
+    globals()[listname] += szcy
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深圳创业板 成功导入%s %s支股票。本次扫描单线程，耗时%s秒。' % (listname, len(szcy), timedelsta))
+
+
+###########------多线程导入---------##########
+# 导入深圳A股列表share_list并去除20171201以后上市的股票
+def get_sza_list_t(listname='share_list', afterdate=20171201):
+    global sza
+    sza = []
+    if listname in globals().keys():
+        if listname != 'share_list':
+            globals()[listname] = []
+    else:
+        globals()[listname] = []
+    index_url = 'http://www.szse.cn/szseWeb/FrontController.szse?ACTIONID=7&AJAX=AJAX-FALSE&CATALOGID=1110&TABKEY=tab2&tab2PAGENO=1'
+    s = requests.session()
+    s.keep_alive = False
+    index_html = s.get(index_url).content
+    index_soup = BeautifulSoup(index_html, "html.parser")
+    index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
     threads = []
+    start_time = datetime.now()
+    print('正在获取深A列表，一共%s页。' % (index+1))
+    for i in range(index):
+        i = i + 1
+        a = threading.Thread(target=get_sza_page, args=(i, afterdate,))
+        threads.append(a)
+        a.start()
+    for t in threads:
+        t.join()
+    globals()[listname] += sza
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深A 成功导入%s %s支股票。本次扫描多线程，耗时%s秒。' % (listname, len(sza), timedelsta))
+
+# 导入深圳中小板share_list
+def get_szzx_list_t(listname='share_list'):
+    global szzx
+    szzx = []
+    if listname in globals().keys():
+        if listname != 'share_list':
+            globals()[listname] = []
+    else:
+        globals()[listname] = []
+    index_url = 'http://www.szse.cn/szseWeb/FrontController.szse?ACTIONID=7&AJAX=AJAX-FALSE&CATALOGID=1110&TABKEY=tab5&tab5PAGENO=1'
+    s = requests.session()
+    s.keep_alive = False
+    index_html = s.get(index_url).content
+    index_soup = BeautifulSoup(index_html, "html.parser")
+    index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
+    threads = []
+    start_time = datetime.now()
+    print('正在获取深圳中小板列表，一共%s页。' % (index+1))
+    for i in range(index):
+        i = i + 1
+        a = threading.Thread(target=get_szzx_page, args=(i,))
+        threads.append(a)
+        a.start()
+    for t in threads:
+        t.join()
+    globals()[listname] += szzx
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深圳中小板 成功导入%s %s支股票。本次扫描多线程，耗时%s秒。' % (listname, len(szzx), timedelsta))
+
+# 导入深圳创业板share_list
+def get_szcy_list_t(listname='share_list'):
+    global szcy
+    szcy = []
+    if listname in globals().keys():
+        if listname != 'share_list':
+            globals()[listname] = []
+    else:
+        globals()[listname] = []
+    index_url = 'http://www.szse.cn/szseWeb/FrontController.szse?ACTIONID=7&AJAX=AJAX-FALSE&CATALOGID=1110&TABKEY=tab6&tab6PAGENO=1'
+    s = requests.session()
+    s.keep_alive = False
+    index_html = s.get(index_url).content
+    index_soup = BeautifulSoup(index_html, "html.parser")
+    index = int(index_soup.select('td')[-3].text.split()[1][1:-1])
+    threads = []
+    start_time = datetime.now()
     print('正在获取深圳创业板列表，一共%s页。' % (index+1))
     for i in range(index):
         i = i + 1
@@ -405,7 +583,9 @@ def get_szcy_list(listname='share_list'):
     for t in threads:
         t.join()
     globals()[listname] += szcy
-    print('从 深圳创业板 成功导入%s %s支股票。' % (listname, len(szcy)))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('从 深圳创业板 成功导入%s %s支股票。本次扫描多线程，耗时%s秒。' % (listname, len(szcy), timedelsta))
 
 ############################==================================##########################
 ###多线程筛选
@@ -562,10 +742,18 @@ def insert_ma_data(stock_code, ma_now):
 def help():
     print('''
     get_list()
-        get_sha_list()
-        get_sza_list()
-        get_szzx_list()
-        get_szcy_list()
+        load_list()
+            get_sha_list()
+            get_sza_list()
+            get_szzx_list()
+             get_szcy_list()
+        load_list_t()
+            get_sha_list()
+            get_sza_list_t()
+            get_szzx_list_t()
+            get_szcy_list_t()
+        *insert_share_list()
+    
     sort_list()
         sort_price_list
         sort_ma_list
