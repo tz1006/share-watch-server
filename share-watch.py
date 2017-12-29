@@ -1,4 +1,5 @@
 # !/Python
+#coding:utf-8
 
 import requests
 import sqlite3
@@ -224,105 +225,6 @@ def plot_list(listname):
             pass
 
 
-#######--Create share_list Database--#######
-# 创建share_list数据库
-def create_share_list_db():
-    if os.path.exists('database') == False:
-        os.makedirs('database')
-    conn = sqlite3.connect('database/share_list.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS SHA
-        (CODE TEXT PRIMARY KEY UNIQUE,
-        NAME   TEXT);''')
-    c.execute('''CREATE TABLE IF NOT EXISTS SZA
-        (CODE TEXT PRIMARY KEY UNIQUE,
-        NAME   TEXT);''')
-    c.execute('''CREATE TABLE IF NOT EXISTS SZZX
-        (CODE TEXT PRIMARY KEY UNIQUE,
-        NAME   TEXT);''')
-    c.execute('''CREATE TABLE IF NOT EXISTS SZCY
-        (CODE TEXT PRIMARY KEY UNIQUE,
-        NAME   TEXT);''')
-    conn.commit()
-    conn.close()
-    print("成功创建share_list数据库 表SHA，SZA，SZZX，SZCY，等待数据写入。")
-
-
-# 插入股票代码到数据库share_list
-def insert_share_codes_t():
-    start_time = datetime.now()
-    globals()['share_list'] = list(set(share_list))
-    delete_form('share_list', 'SHA')
-    delete_form('share_list', 'SZA')
-    delete_form('share_list', 'SZZX')
-    delete_form('share_list', 'SZCY')
-    create_share_list_db()
-    threads = []
-    for i in share_list:
-        a = threading.Thread(target=insert_code, args=(i,))
-        threads.append(a)
-        while threading.activeCount() >= 30:
-            time.sleep(0.5)
-        a.start()
-    end_time = datetime.now()
-    timedelsta = (end_time - start_time).seconds
-    print('写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
-
-# 插入股票代码 单线程
-def insert_share_codes():
-    start_time = datetime.now()
-    globals()['share_list'] = list(set(share_list))
-    delete_form('share_list', 'SHA')
-    delete_form('share_list', 'SZA')
-    delete_form('share_list', 'SZZX')
-    delete_form('share_list', 'SZCY')
-    create_share_list_db()
-    conn = sqlite3.connect('database/share_list.db')
-    c = conn.cursor()
-    for code in share_list:
-        name = share_name(code)
-        formname = share_market_code(code)
-        c.execute("INSERT INTO %s (CODE, NAME) VALUES (?, ?)" % formname,(code, name))
-    conn.commit()
-    conn.close()
-    end_time = datetime.now()
-    timedelsta = (end_time - start_time).seconds
-    print('单线程写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
-
-
-# 插入股票代码到数据库share_list 多线程
-def insert_share_codes_t():
-    start_time = datetime.now()
-    globals()['share_list'] = list(set(share_list))
-    delete_form('share_list', 'SHA')
-    delete_form('share_list', 'SZA')
-    delete_form('share_list', 'SZZX')
-    delete_form('share_list', 'SZCY')
-    create_share_list_db()
-    threads = []
-    for i in share_list:
-        a = threading.Thread(target=insert_code, args=(i,))
-        threads.append(a)
-        while threading.activeCount() >= 30:
-            time.sleep(0.5)
-        a.start()
-    for t in threads:
-        t.join()
-    end_time = datetime.now()
-    timedelsta = (end_time - start_time).seconds
-    print('多线程写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
-
-# 插入股票代码
-def insert_code(code):
-    name = share_name(code)
-    formname = share_market_code(code)
-    conn = sqlite3.connect('database/share_list.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO %s (CODE, NAME) VALUES (?, ?)" % formname,(code, name))
-    conn.commit()
-    conn.close()
-
-
 #################--load-pages--####################
 
 def get_sza_page(page_num, afterdate=20171201):
@@ -405,7 +307,13 @@ def get_szcy_page(page_num):
 ##############==============================================############
 # 导入股票
 def get_list():
-    load_list()
+    try:
+        select_share_codes()
+    except:
+        print('首次启动，正在下载数据。')
+        load_list()
+    else:
+        print('成功导入列表share_list！')
 
 
 # 单线程导入
@@ -637,16 +545,149 @@ def get_szcy_list_t(listname='share_list'):
     timedelsta = (end_time - start_time).seconds
     print('从 深圳创业板 成功导入%s %s支股票。本次扫描多线程，耗时%s秒。' % (listname, len(szcy), timedelsta))
 
+
+#######--Create share_list Database--#######
+# 创建share_list数据库
+def create_share_list_db():
+    if os.path.exists('database') == False:
+        os.makedirs('database')
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS SHA
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZA
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZZX
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    c.execute('''CREATE TABLE IF NOT EXISTS SZCY
+        (CODE TEXT PRIMARY KEY UNIQUE,
+        NAME   TEXT);''')
+    conn.commit()
+    conn.close()
+    print("成功创建share_list数据库 表SHA，SZA，SZZX，SZCY，等待数据写入。")
+
+
+# 插入股票代码到数据库share_list
+def insert_share_codes_t():
+    start_time = datetime.now()
+    globals()['share_list'] = list(set(share_list))
+    delete_form('share_list', 'SHA')
+    delete_form('share_list', 'SZA')
+    delete_form('share_list', 'SZZX')
+    delete_form('share_list', 'SZCY')
+    create_share_list_db()
+    threads = []
+    for i in share_list:
+        a = threading.Thread(target=insert_code, args=(i,))
+        threads.append(a)
+        while threading.activeCount() >= 30:
+            time.sleep(0.5)
+        a.start()
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
+
+# 插入股票代码 单线程
+def insert_share_codes():
+    start_time = datetime.now()
+    globals()['share_list'] = list(set(share_list))
+    delete_form('share_list', 'SHA')
+    delete_form('share_list', 'SZA')
+    delete_form('share_list', 'SZZX')
+    delete_form('share_list', 'SZCY')
+    create_share_list_db()
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    for code in share_list:
+        name = share_name(code)
+        formname = share_market_code(code)
+        c.execute("INSERT INTO %s (CODE, NAME) VALUES (?, ?)" % formname,(code, name))
+    conn.commit()
+    conn.close()
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('单线程写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
+
+
+# 插入股票代码到数据库share_list 多线程
+def insert_share_codes_t():
+    start_time = datetime.now()
+    globals()['share_list'] = list(set(share_list))
+    delete_form('share_list', 'SHA')
+    delete_form('share_list', 'SZA')
+    delete_form('share_list', 'SZZX')
+    delete_form('share_list', 'SZCY')
+    create_share_list_db()
+    threads = []
+    for i in share_list:
+        a = threading.Thread(target=insert_code, args=(i,))
+        threads.append(a)
+        while threading.activeCount() >= 30:
+            time.sleep(0.5)
+        a.start()
+    for t in threads:
+        t.join()
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('多线程写入数据库 %s 支股票！耗时 %s 秒。' % (len(share_list), timedelsta))
+
+# 插入股票代码
+def insert_code(code):
+    name = share_name(code)
+    formname = share_market_code(code)
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO %s (CODE, NAME) VALUES (?, ?)" % formname,(code, name))
+    conn.commit()
+    conn.close()
+
+
+#######--import share_list Data--#######
+
+def select_share_codes():
+    globals()['share_list'] = []
+    conn = sqlite3.connect('database/share_list.db')
+    c = conn.cursor()
+    cursor1 = c.execute("SELECT CODE from SHA")
+    cursor2 = c.execute("SELECT CODE from SZA")
+    cursor3 = c.execute("SELECT CODE from SZZX")
+    cursor4 = c.execute("SELECT CODE from SZCY")
+    for row in cursor1:
+        globals()['share_list'].append(row[0])
+    for row in cursor2:
+        globals()['share_list'].append(row[0])
+    for row in cursor3:
+        globals()['share_list'].append(row[0])
+    for row in cursor4:
+        globals()['share_list'].append(row[0])
+    conn.close()
+
 ############################==================================##########################
-###多线程筛选
+###单多线程筛选
 def sort_list(listname='share_list', price=18, day=10):
+    start_time = datetime.now()
     a = len(globals()[listname])
     sort_price_list(listname, price)
     sort_ma_list(listname, day)
     b = len(globals()[listname])
-    print('过滤掉%s支股票，还剩%s支股票' % (a-b, b))
+    end_time = datetime.now()
+    timedelsta = (end_time - start_time).seconds
+    print('过滤掉%s支股票，还剩%s支股票，耗时%s秒。' % (a-b, b, timedelsta))
 
-# 筛选价格
+
+###多线程筛选
+def sort_list_t(listname='share_list', price=18, day=10):
+    a = len(globals()[listname])
+    sort_price_list_t(listname, price)
+    sort_ma_list_t(listname, day)
+    b = len(globals()[listname])
+    print('过滤掉%s支股票，还剩%s支股票，耗时%s秒。' % (a-b, b, timedelsta))
+
+### 筛选价格
+
 def sort_price(share_code, target_price=18):
     #print('检查 %s 价格是否低于%s元' % (share_code, target_price))
     price = price_now(share_code)[0]
@@ -659,7 +700,20 @@ def sort_price(share_code, target_price=18):
     else:
         print('%s 符合条件!' % share_code)
 
+# 单线程筛选价格
 def sort_price_list(listname='share_list', target_price=18):
+    global li
+    li = list(globals()[listname])
+    print('筛选%s中，价格低于%s元, 一共%s支股票。' % (listname, target_price,len(globals()[listname])))
+    for i in globals()[listname]:
+        sort_price(i, target_price)
+    a = len(globals()[listname])
+    b = len(li)
+    globals()[listname] = li
+    print('已经从 %s 移除 %s 支股票，列表中还剩 %s' % (listname, a-b, b))
+
+# 多线程筛选价格
+def sort_price_list_t(listname='share_list', target_price=18):
     global li
     li = list(globals()[listname])
     threads = []
@@ -691,7 +745,20 @@ def sort_ma(share_code, days=10):
                 globals()['ma'+share_code] = (ma[0][0], ma[1][0])
                 print('-----成功获取 %s MA5/10历史数据-----' % share_code)
 
+# 单线程筛选MA
 def sort_ma_list(listname='share_list', days=10):
+    global li
+    li = list(globals()[listname])
+    print('筛选%s中MA10连续%s日大于MA5, 一共%s支股票。' % (listname, days, len(globals()[listname])))
+    for i in globals()[listname]:
+        sort_ma(i, days)
+    a = len(globals()[listname])
+    b = len(li)
+    globals()[listname] = li
+    print('已经从 %s 移除 %s 支股票，列表中还剩 %s' % (listname, a-b, b))
+
+# 多线程筛选MA
+def sort_ma_list_t(listname='share_list', days=10):
     global li
     li = list(globals()[listname])
     threads = []
@@ -716,14 +783,14 @@ def ma_monitor_start(listname='share_list', count=9999):
     a.start()
 
 def ma_monitor_stop():
-    globals()['ma_monitor_status'] = True
+    globals()['ma_monitor_status'] = False
     print('监视结束！')
 
 # MA监视循环
 def ma_monitor(listname='share_list', count=9999):
     global buy_list
     global ma_monitor_status
-    globals()['ma_monitor_status'] = False
+    globals()['ma_monitor_status'] = True
     buy_list = []
     create_ma_form('MA')
     c = 0
@@ -808,6 +875,7 @@ def help():
     sort_list()
         sort_price_list
         sort_ma_list
+    
     ma_monitor_start()
     ma_monitor_stop()
     -plot_list('listname')
@@ -817,3 +885,4 @@ help()
 
 import code
 code.interact(banner = "", local = locals())
+
