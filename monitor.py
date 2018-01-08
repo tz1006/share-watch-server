@@ -13,7 +13,9 @@ import sqlite3
 ##########################################
 # 监视程序
 # 启动关闭MA监视
-def ma_monitor_start(l, last_ma, count=9999):
+def ma_monitor_start(l, dic, count=9999):
+    global last_ma
+    last_ma = dic
     a = threading.Thread(target=ma_monitor, args=(l, count,))
     a.start()
 
