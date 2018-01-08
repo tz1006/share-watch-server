@@ -8,6 +8,7 @@ from datetime import datetime
 from pytz import timezone
 import threading
 import os
+import sqlite3
 
 ##########################################
 # 监视程序
