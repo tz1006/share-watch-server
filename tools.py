@@ -4,7 +4,6 @@
 
 
 # 工具集
-import sqlite3
 import requests
 
 timeout = 3
@@ -88,7 +87,7 @@ def ma_now(stock_code, debug=0):
     r = None
     while r == None:
         try:
-            r = s.get(url, proxies=proxies, timeout=timeout)
+            r = s.get(url, timeout=timeout)
         except:
             pass
     if debug != 0:
@@ -111,12 +110,14 @@ def ma_hist(stock_code, days=10, debug=0):
     s = requests.session()
     s.keep_alive = False
     url = 'http://api.finance.ifeng.com/akdaily/?code=%s&type=last' % sscode(stock_code)
+    print(url)
     r = None
     while r == None:
         try:
-            r = s.get(url, proxies=proxies, timeout=timeout)
+            r = s.get(url, timeout=timeout)
         except:
             pass
+    print(r)
     if debug != 0:
         return r
     ma = r.json()['record']
