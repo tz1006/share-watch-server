@@ -6,7 +6,7 @@
 # 工具集
 import requests
 
-timeout = 3
+timeout = 6
 
 ########--Tools--########
 
