@@ -54,7 +54,7 @@ def ma_checker(stock_code):
                 if stock_code not in buy_list:
                     buy_list.append(stock_code)
                     time_now = datetime.now(timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-                    text = '%s交叉预警 %s' % (stock_code, time_now)
+                    text = u'%s交叉预警 %s' % (stock_code, time_now)
                     sms.send_sms(16267318573, text)
                     print('%s买入时机' % stock_code)
                     insert_ma_data(stock_code, ma)
