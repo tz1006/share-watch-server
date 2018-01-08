@@ -7,5 +7,9 @@ import sort_t
 
 share_list = sort_t.sort_list(share_list)
 
+from monitor import *
+ma_monitor_start(share_list)
+
+
 import code
 code.interact(banner = "", local = locals())
