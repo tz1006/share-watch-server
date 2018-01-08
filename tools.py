@@ -111,14 +111,12 @@ def ma_hist(stock_code, days=10, debug=0):
     s = requests.session()
     s.keep_alive = False
     url = 'http://api.finance.ifeng.com/akdaily/?code=%s&type=last' % sscode(stock_code)
-    print(url)
     r = None
     while r == None:
         try:
             r = s.get(url, timeout=timeout)
         except:
             pass
-    print(r)
     if debug != 0:
         return r
     ma = r.json()['record']
