@@ -17,6 +17,7 @@ def send_sms(number, message):
     'from': 12015946703,
     'to': number,
     'text': message,
+    'type': 'unicode'
   })
 
 phone = 16267318573
