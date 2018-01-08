@@ -52,7 +52,7 @@ def sort_ma(share_code, days=10):
                 print('%s 不符合条件：MA10连续%s日大于MA5。' % (share_code, days))
                 break
             if l == days-1:
-                globals()['ma'+share_code] = (ma[0][0], ma[1][0], ma[2][0])
+                last_ma[share_code] = (ma[0][0], ma[1][0], ma[2][0])
                 print('-----成功获取 %s MA5/10历史数据-----' % share_code)
 
 
@@ -76,6 +76,8 @@ def sort_price_list(l, target_price=18):
 # 多线程筛选MA
 def sort_ma_list(l, days=10):
     global li
+    global last_ma
+    last_ma = {}
     print('筛选MA10连续%s日大于MA5, 一共%s支股票。' % (days, len(l)))
     li = list(l)
     threads = []
