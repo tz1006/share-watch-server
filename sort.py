@@ -76,7 +76,7 @@ def sort_ma_list(l, days=10):
         sort_ma(i, days)
     a = len(l)
     b = len(li)
-    print('移除 %s 支股票不符合MA10连续%s日大于MA5，列表中还剩 %s' % (listname, a-b, b))
+    print('移除 %s 支股票不符合MA10连续%s日大于MA5，列表中还剩 %s' % (a-b, days, b))
     return(li)
 
 
