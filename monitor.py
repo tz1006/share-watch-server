@@ -46,7 +46,6 @@ def ma_monitor(l, count=9999):
 
 # Ma监视条件
 def ma_checker(stock_code):
-    print(stock_code)
     ma = ma_now(stock_code)
     # MA5大于MA10
     if ma[0] > ma[1]:
