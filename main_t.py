@@ -6,3 +6,6 @@ from sharelist import share_list
 import sort_t
 
 share_list = sort_t.sort_list(share_list)
+
+import code
+code.interact(banner = "", local = locals())
