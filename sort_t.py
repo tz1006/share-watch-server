@@ -1,18 +1,19 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*- 
-# filename: sort.py
+# filename: sort_t.py
 
 import requests
 import os
 from bs4 import BeautifulSoup
 from datetime import datetime
+import threading
 
 ############PROXY###########
-timeout = 5
+timeout = 3
 
 from tools import *
 
-###单线程筛选
+###多线程筛选
 def sort_list(l, price=18, day=10):
     start_time = datetime.now()
     a = len(l)
@@ -55,25 +56,35 @@ def sort_ma(share_code, days=10):
                 print('-----成功获取 %s MA5/10历史数据-----' % share_code)
 
 
-# 单线程筛选价格
+# 多线程筛选价格
 def sort_price_list(l, target_price=18):
     global li
     print('筛选价格中, 一共%s支股票。' % len(l))
     li = list(l)
+    threads = []
     for i in l:
-        sort_price(i, target_price)
+        a = threading.Thread(target=sort_price, args=(i, target_price))
+        threads.append(a)
+        a.start()
+    for t in threads:
+        t.join()
     a = len(l)
     b = len(li)
     print('移除 %s 支股票价格低于%s元，列表中还剩 %s' % (a-b, target_price, b))
     return(li)
 
-# 单线程筛选MA
+# 多线程筛选MA
 def sort_ma_list(l, days=10):
     global li
     print('筛选MA10连续%s日大于MA5, 一共%s支股票。' % (days, len(l)))
     li = list(l)
+    threads = []
     for i in l:
-        sort_ma(i, days)
+        a = threading.Thread(target=sort_ma, args=(i, days))
+        threads.append(a)
+        a.start()
+    for t in threads:
+        t.join()
     a = len(l)
     b = len(li)
     print('移除 %s 支股票不符合MA10连续%s日大于MA5，列表中还剩 %s' % (listname, a-b, b))
@@ -83,7 +94,7 @@ def sort_ma_list(l, days=10):
 
 def help():
     print('''
-    单线程
+    多线程
     sort_list(list, price=18, day=10)
         sort_price_list(list, target_price=18)
           sort_price()
