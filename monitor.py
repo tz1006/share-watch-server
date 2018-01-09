@@ -49,8 +49,8 @@ def ma_checker(stock_code):
     ma = ma_now(stock_code)
     # MA5大于MA10
     if ma[0] > ma[1]:
-        if ma[0] > last_ma[stock_code][0] and  ma[1] > last_ma[stock_code][1]:
-            if ma[0] > last_ma[stock_code][2]:
+        if ma[0] > last_ma[stock_code][0] and ma[1] > last_ma[stock_code][1]:
+            if ma[0] > ma[2]:
                 if stock_code not in buy_list:
                     buy_list.append(stock_code)
                     time_now = datetime.now(timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
