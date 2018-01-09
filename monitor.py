@@ -59,11 +59,14 @@ def ma_checker(stock_code):
                     print('%s买入时机' % stock_code)
                     insert_ma_data(stock_code, ma)
 
-# 在数据库'MA'中建立表 '17-12-27'/ CODE/ NAME/ PRICE/ AVERAGE/ TIME/ TIMECROSS/ OTHER
+
+############################################
+# 数据库部分
+# 在数据库'MA'中建立表 '17-12-27'/ CODE/ NAME/ PRICE/ AVERAGE/ MA5/ MA10/ MA20/ MA30/ TIME/ TIMECROSS/ MARKET
 def create_ma_form(dbname):
     if os.path.exists('database') == False:
         os.makedirs('database')
-    date = datetime.now().strftime('\"%y-%m-%d\"')
+    date = datetime.now(timezone('Asia/Shanghai')).strftime('\"%y-%m-%d\"')
     conn = sqlite3.connect('database/%s.db' % dbname)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS %s
@@ -73,6 +76,8 @@ def create_ma_form(dbname):
         AVERAGE  TEXT,
         MA5  TEXT,
         MA10  TEXT,
+        MA20  TEXT,
+        MA30  TEXT,
         TIME   TEXT,
         TIMECROSS   TEXT,
         MARKET   TEXT);''' % date)
@@ -80,7 +85,7 @@ def create_ma_form(dbname):
     conn.close()
     print("Form %s Created in %s!" % (date, dbname))
 
-# 在数据库'MA'，表'17-12-27'中 写入 / CODE/ NAME/ PRICE/ AVERAGE/ TIME/
+# 在数据库'MA'，表'17-12-27'中 写入 / CODE/ NAME/ PRICE/ AVERAGE/ MA5/ MA10/ MA20/ MA30/ TIME/ TIMECROSS/ MARKET
 def insert_ma_data(stock_code, ma_now):
     prices = price_now(stock_code)
     price = str(prices[0])
@@ -88,12 +93,14 @@ def insert_ma_data(stock_code, ma_now):
     name = share_name(stock_code)
     ma5 = ma_now[0]
     ma10 = ma_now[1]
-    time = datetime.now().strftime('%H:%M:%S')
+    ma20 = ma_now[2]
+    ma30 = ma_now[3]
+    time = datetime.now(timezone('Asia/Shanghai')).strftime('%H:%M:%S')
     formname = datetime.now(timezone('Asia/Shanghai')).strftime('\"%y-%m-%d\"')
     conn = sqlite3.connect('database/MA.db')
     c = conn.cursor()
     print(stock_code, name, price, average, time)
-    c.execute("INSERT OR IGNORE INTO %s (CODE, NAME, PRICE, AVERAGE, MA5, MA10, TIME, MARKET) VALUES (?, ?, ?, ?, ?, ?, ?, ?)" % formname,(stock_code, name, price, average, ma5, ma10, time, share_market(stock_code)))
+    c.execute("INSERT OR IGNORE INTO %s (CODE, NAME, PRICE, AVERAGE, MA5, MA10, MA20, MA30, TIME, MARKET) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" % formname,(stock_code, name, price, average, ma5, ma10, ma20, ma30, time, share_market(stock_code)))
     conn.commit()
     conn.close()
     print('写入 %s 数据成功！' % stock_code)
