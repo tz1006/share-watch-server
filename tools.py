@@ -5,7 +5,8 @@
 
 # 工具集
 import requests
-from datetime import date, datetime
+from datetime import datetime
+from pytz import timezone
 
 timeout = 6
 
@@ -87,7 +88,7 @@ def ma_now(stock_code, debug=0):
         except:
             pass
     type = type_r.text.split(',')[-2]
-    today = date.today()
+    today = datetime.now(timezone('Asia/Shanghai'))
     span = '%s%02d%02d' % (today.year, today.month, today.day)
     url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s%s&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (stock_code, type, span)
     #print(url)
