@@ -82,7 +82,12 @@ def ma_now(stock_code, debug=0):
     today = date.today()
     span = '%s%02d%02d' % (today.year, today.month, today.day)
     #print(span)
-    url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s1&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (stock_code, span)
+    # 重复股票代码2
+    if stock_code == '000939':
+        code = '0009392'
+    else:
+        code = '%s1' % stock_code
+    url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (code, span)
     s = requests.session()
     s.keep_alive = False
     r = None
