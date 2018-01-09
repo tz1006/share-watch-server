@@ -77,16 +77,20 @@ def price_now(stock_code):
         average = float(now[4])
     return (price, average)
 
+
 def ma_now(stock_code, debug=0):
+    type_url = 'http://suggest.eastmoney.com/SuggestData/Default.aspx?type=1&input=%s' % stock_code
+    type_r = None
+    while type_r == None:
+        try:
+            type_r = s.get(type_url, timeout=timeout)
+        except:
+            pass
+    type = type_r.text.split(',')[-2]
     today = date.today()
     span = '%s%02d%02d' % (today.year, today.month, today.day)
-    #print(span)
-    # 重复股票代码2
-    if stock_code == '000939':
-        code = '0009392'
-    else:
-        code = '%s1' % stock_code
-    url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (code, span)
+    url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s%s&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (stock_code, type, span)
+    print(url)
     r = None
     while r == None:
         try:
@@ -104,9 +108,11 @@ def ma_now(stock_code, debug=0):
         ma5 = float(ma_data[0])
         ma10 = float(ma_data[1])
         ma20 = float(ma_data[2])
+        ma30 = float(ma_data[3])
     #print(ma5, ma10)
-    return(ma5, ma10, ma20)
- 
+    return(ma5, ma10, ma20, ma30)
+
+
 def ma_hist(stock_code, days=10, debug=0):
     #ua_mo = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_1_1 like Mac OS X) AppleWebKit/604.3.5 (KHTML, like Gecko) Version/11.0 Mobile/15B150 Safari/604.1'
     #header = {'User-Agent':ua_mo}
