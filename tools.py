@@ -9,6 +9,9 @@ from datetime import date, datetime
 
 timeout = 6
 
+s = requests.session()
+s.keep_alive = False
+
 ########--Tools--########
 
 def sscode(code):
@@ -20,8 +23,6 @@ def sscode(code):
     return code
 
 def share_name(code):
-    s = requests.session()
-    s.keep_alive = False
     url = 'http://hq.sinajs.cn/list=%s' % sscode(code)
     r = None
     while r == None:
@@ -57,8 +58,6 @@ def share_market_code(code):
 #######---get-data---#######
 
 def price_now(stock_code):
-    s = requests.session()
-    s.keep_alive = False
     url = 'http://api.finance.ifeng.com/aminhis/?code=%s&type=five' % sscode(stock_code)
     r = None
     while r == None:
@@ -88,8 +87,6 @@ def ma_now(stock_code, debug=0):
     else:
         code = '%s1' % stock_code
     url = 'http://pdfm.eastmoney.com/EM_UBG_PDTI_Fast/api/js?id=%s&TYPE=k&rtntype=1&QueryStyle=2.2&QuerySpan=%s%%2C1&extend=ma' % (code, span)
-    s = requests.session()
-    s.keep_alive = False
     r = None
     while r == None:
         try:
@@ -113,8 +110,6 @@ def ma_now(stock_code, debug=0):
 def ma_hist(stock_code, days=10, debug=0):
     #ua_mo = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_1_1 like Mac OS X) AppleWebKit/604.3.5 (KHTML, like Gecko) Version/11.0 Mobile/15B150 Safari/604.1'
     #header = {'User-Agent':ua_mo}
-    s = requests.session()
-    s.keep_alive = False
     url = 'http://api.finance.ifeng.com/akdaily/?code=%s&type=last' % sscode(stock_code)
     r = None
     while r == None:
