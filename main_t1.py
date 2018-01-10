@@ -9,7 +9,7 @@ share_list = sort_t.sort_list(share_list)
 last_ma = sort_t.last_ma
 
 import monitor1
-import1.ma_monitor_start(share_list, last_ma)
+monitor1.ma_monitor_start(share_list, last_ma)
 
 
 import code
