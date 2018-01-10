@@ -54,7 +54,9 @@ def ma_checker(stock_code):
     ma = ma_now(stock_code)
     # MA5大于MA10
     if ma[0] >= ma[1]:
+        # MA5，MA10 大于前一日
         if ma[0] >= last_ma[stock_code][0] and ma[1] >= last_ma[stock_code][1]:
+            # MA5 大于 MA20
             if ma[0] >= ma[2]:
                 if stock_code not in buy_list:
                     buy_list.append(stock_code)
