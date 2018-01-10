@@ -34,8 +34,8 @@ def ma_monitor(l, count=9999):
     print('开始扫描，一共%s次。' % count)
     sms.send_sms(16267318573, '开始扫描')
     start_time = datetime.now()
-    while globals()['ma_monitor_status'] != False:
-        while c < count:
+    while c < count:
+        if globals()['ma_monitor_status'] != False:
             c += 1
             # time.sleep(10)
             for i in l:
@@ -44,6 +44,8 @@ def ma_monitor(l, count=9999):
             timedelsta = (end_time - start_time).seconds
             print('第%s次扫描完成, 一共%s支股票，已找到%s支股票符合。 本次扫描耗时%s秒。' % (c, len(l), len(buy_list), timedelsta))
             start_time = end_time
+        else:
+            brake
     print('监视结束！')
 
 
