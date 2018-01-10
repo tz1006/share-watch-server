@@ -45,7 +45,7 @@ def ma_monitor(l, count=9999):
             print('第%s次扫描完成, 一共%s支股票，已找到%s支股票符合。 本次扫描耗时%s秒。' % (c, len(l), len(buy_list), timedelsta))
             start_time = end_time
         else:
-            brake
+            break
     print('监视结束！')
 
 
