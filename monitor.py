@@ -22,7 +22,7 @@ def ma_monitor_start(l, dic, count=9999):
 def ma_monitor_stop():
     globals()['ma_monitor_status'] = False
     while True:
-        if threading.activeCount() = 1:
+        if threading.activeCount() == 1:
             print('监视结束！')
             break
 
