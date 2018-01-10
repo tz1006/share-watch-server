@@ -21,10 +21,6 @@ def ma_monitor_start(l, dic, count=9999):
 
 def ma_monitor_stop():
     globals()['ma_monitor_status'] = False
-    while True:
-        if threading.activeCount() == 1:
-            print('监视结束！')
-            break
 
 
 # MA监视循环
@@ -48,6 +44,8 @@ def ma_monitor(l, count=9999):
             timedelsta = (end_time - start_time).seconds
             print('第%s次扫描完成, 一共%s支股票，已找到%s支股票符合。 本次扫描耗时%s秒。' % (c, len(l), len(buy_list), timedelsta))
             start_time = end_time
+    print('监视结束！')
+
 
 # Ma监视条件
 def ma_checker(stock_code):
