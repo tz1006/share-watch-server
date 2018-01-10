@@ -1,4 +1,3 @@
 # !
 
-cd  ~/share-watch-server
-screen python3 ./main_t.py
+screen python3 ~/share-watch-server/main_t.py
