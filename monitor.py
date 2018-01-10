@@ -32,6 +32,7 @@ def ma_monitor(l, count=9999):
     create_ma_form('MA')
     c = 0
     print('开始扫描，一共%s次。' % count)
+    sms.send_sms(16267318573, '开始扫描')
     start_time = datetime.now()
     while c < count:
         while globals()['ma_monitor_status'] != False:
