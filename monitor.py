@@ -21,7 +21,11 @@ def ma_monitor_start(l, dic, count=9999):
 
 def ma_monitor_stop():
     globals()['ma_monitor_status'] = False
-    print('监视结束！')
+    while True:
+        if threading.activeCount() = 1:
+            print('监视结束！')
+            break
+
 
 # MA监视循环
 def ma_monitor(l, count=9999):
@@ -34,8 +38,8 @@ def ma_monitor(l, count=9999):
     print('开始扫描，一共%s次。' % count)
     sms.send_sms(16267318573, '开始扫描')
     start_time = datetime.now()
-    while c < count:
-        while globals()['ma_monitor_status'] != False:
+    while globals()['ma_monitor_status'] != False:
+        while c < count:
             c += 1
             # time.sleep(10)
             for i in l:
