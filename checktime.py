@@ -4,6 +4,7 @@
 
 from datetime import datetime, timedelta
 from pytz import timezone
+import time
 
 def next_trading_date(debug=0):
     now_time = datetime.now(timezone('Asia/Shanghai'))
@@ -37,7 +38,7 @@ def check_time():
             sleep_day = sleep_time // 86400
             sleep_hour = (sleep_time % 86400) // 3600
             sleep_second = ((sleep_time % 86400) % 3600) // 60
-            print(sleep_day, sleep_hour, sleep_second)
+            #print(sleep_day, sleep_hour, sleep_second)
             print('睡眠%d天%d小时%d秒后启动程序' % (sleep_day, sleep_hour, sleep_second))
             time.sleep(sleep_time)
         # 如果是盘后
@@ -51,7 +52,7 @@ def check_time():
             sleep_day = sleep_time // 86400
             sleep_hour = (sleep_time % 86400) // 3600
             sleep_second = ((sleep_time % 86400) % 3600) // 60
-            print(sleep_day, sleep_hour, sleep_second)
+            #print(sleep_day, sleep_hour, sleep_second)
             print('睡眠%d天%d小时%d秒后启动程序' % (sleep_day, sleep_hour, sleep_second))
             time.sleep(sleep_time)
         else:
@@ -66,7 +67,7 @@ def check_time():
         sleep_day = sleep_time // 86400
         sleep_hour = (sleep_time % 86400) // 3600
         sleep_second = ((sleep_time % 86400) % 3600) // 60
-        print(sleep_day, sleep_hour, sleep_second)
+        #print(sleep_day, sleep_hour, sleep_second)
         print('睡眠%d天%d小时%d秒后启动程序' % (sleep_day, sleep_hour, sleep_second))
         time.sleep(sleep_time)
 
