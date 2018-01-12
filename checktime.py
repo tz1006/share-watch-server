@@ -37,7 +37,7 @@ def check_time():
             sleep_day = sleep_time // 86400
             sleep_hour = (sleep_time % 86400) // 3600
             sleep_second = ((sleep_time % 86400) % 3600) // 60
-            print('睡眠%s天%小时%秒后启动程序' % (sleep_day, sleep_hour, sleep_second))
+            print('睡眠%s天%s小时%s秒后启动程序' % (sleep_day, sleep_hour, sleep_second))
             time.sleep(sleep_time)
         # 如果是盘后
         elif now_time.hour > 14:
