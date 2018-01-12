@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*- 
 # filename: main.py
 
+import checktime
+
 from sharelist import share_list
 import sort
 
