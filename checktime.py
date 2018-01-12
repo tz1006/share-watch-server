@@ -41,7 +41,7 @@ def check_time():
             time.sleep(sleep_time)
         # 如果是盘后
         elif now_time.hour > 14:
-            start_date = next_trading_date()
+            next_date = next_trading_date()
             start_year = next_date[0]
             start_month = next_date[1]
             start_day = next_date[2]
@@ -55,7 +55,7 @@ def check_time():
         else:
             print('启动程序！')
     else:
-        start_date = next_trading_date()
+        next_date = next_trading_date()
         start_year = next_date[0]
         start_month = next_date[1]
         start_day = next_date[2]
