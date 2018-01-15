@@ -10,6 +10,8 @@ import threading
 import os
 import sqlite3
 
+client_phone = 8618662059088
+
 ##########################################
 # 监视程序
 # 启动关闭MA监视
@@ -61,7 +63,8 @@ def ma_checker(stock_code):
                 if stock_code not in buy_list:
                     buy_list.append(stock_code)
                     time_now = datetime.now(timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-                    text = '%s交叉预警 %s' % (stock_code, time_now)
+                    text = '%s%s(MA5,10)交叉提醒 %s' % (share_name(stock_code), stock_code, time_now)
+                    sms.send_sms(client_phone, text)
                     sms.send_sms(16267318573, text)
                     print('%s买入时机' % stock_code)
                     insert_ma_data(stock_code, ma)
