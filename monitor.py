@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*- 
 # filename: monitor.py
 
+client_phone = 8618662059088
+
 import sms
 from tools import *
 from datetime import datetime
@@ -33,7 +35,7 @@ def ma_monitor(l, count=9999):
     c = 0
     text = '筛选出%s支股票，开始扫描。条件：1.当日MA5大于MA10，MA20 2.MA5，MA10 分别大于前一日。' % len(l)
     print('开始扫描，一共%s次。' % count)
-    sms.send_sms(8618662059088, text)
+    sms.send_sms(client_phone, text)
     sms.send_sms(16267318573, text)
     start_time = datetime.now()
     while c < count:
@@ -64,7 +66,7 @@ def ma_checker(stock_code):
                     buy_list.append(stock_code)
                     time_now = datetime.now(timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                     text = '%s%s(MA5,10,20)交叉提醒 %s' % (share_name(stock_code), stock_code, time_now)
-                    sms.send_sms(8618662059088, text)
+                    sms.send_sms(client_phone, text)
                     sms.send_sms(16267318573, text)
                     print('%s买入时机' % stock_code)
                     insert_ma_data(stock_code, ma)
