@@ -31,8 +31,10 @@ def ma_monitor(l, count=9999):
     buy_list = []
     create_ma_form('MA')
     c = 0
+    text = '筛选出%s支股票，开始扫描。条件：1.当日MA5大于MA10 2.MA5，MA10 分别大于前一日。' % len(l)
     print('开始扫描，一共%s次。' % count)
-    sms.send_sms(16267318573, '开始扫描')
+    sms.send_sms(client_phone, text)
+    sms.send_sms(16267318573, text)
     start_time = datetime.now()
     while c < count:
         if globals()['ma_monitor_status'] != False:
