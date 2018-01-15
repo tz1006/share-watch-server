@@ -29,7 +29,7 @@ def ma_monitor(l, count=9999):
     global ma_monitor_status
     globals()['ma_monitor_status'] = True
     buy_list = []
-    create_ma_form('MA')
+    create_ma_form('MA20')
     c = 0
     print('开始扫描，一共%s次。' % count)
     sms.send_sms(16267318573, '开始扫描')
@@ -69,7 +69,7 @@ def ma_checker(stock_code):
 
 ############################################
 # 数据库部分
-# 在数据库'MA'中建立表 '17-12-27'/ CODE/ NAME/ PRICE/ AVERAGE/ MA5/ MA10/ MA20/ MA30/ TIME/ TIMECROSS/ MARKET
+# 在数据库'MA20'中建立表 '17-12-27'/ CODE/ NAME/ PRICE/ AVERAGE/ MA5/ MA10/ MA20/ MA30/ TIME/ TIMECROSS/ MARKET
 def create_ma_form(dbname):
     if os.path.exists('database') == False:
         os.makedirs('database')
@@ -104,7 +104,7 @@ def insert_ma_data(stock_code, ma_now):
     ma30 = ma_now[3]
     time = datetime.now(timezone('Asia/Shanghai')).strftime('%H:%M:%S')
     formname = datetime.now(timezone('Asia/Shanghai')).strftime('\"%y-%m-%d\"')
-    conn = sqlite3.connect('database/MA.db')
+    conn = sqlite3.connect('database/MA20.db')
     c = conn.cursor()
     print(stock_code, name, price, average, time)
     c.execute("INSERT OR IGNORE INTO %s (CODE, NAME, PRICE, AVERAGE, MA5, MA10, MA20, MA30, TIME, MARKET) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" % formname,(stock_code, name, price, average, ma5, ma10, ma20, ma30, time, share_market(stock_code)))
